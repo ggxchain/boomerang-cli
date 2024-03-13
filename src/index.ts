@@ -1,53 +1,138 @@
 const { Command } = require("commander"); // add this line
 const figlet = require("figlet");
 
+import { initEccLib, networks } from "bitcoinjs-lib";
+
+import { ECPairFactory, ECPairAPI } from "ecpair";
+
+import { start_taptree } from "./locktime_tapscript";
+
+import tinysecp = require("tiny-secp256k1");
+initEccLib(tinysecp as any);
+const ECPair: ECPairAPI = ECPairFactory(tinysecp);
+
+const network = networks.testnet;
+
 //add the following line
 const program = new Command();
 
-program
-  .version("1.0.0")
-  .description("An CLI for Boomerang UTXO")
-  .option("-h, --help", "List All Command")
-  .option("-c, --create-boomerang <AMOUNT>", "Creates a boomerang UTXO and submits it to GGx and Bitcoin")
-  .option("-r, --recover-boomerang <UTXID>", "Spends a boomerang UTXO that has passed its timelock")
-  .option("-l, --list-boomerangs <SECP256k1 PUBKEY>", "Queries GGx chain for boomerang UTXOs that are either confirmed or in the Bitcoin mempool")
-  .parse(process.argv);
+async function main() {
+  console.log(figlet.textSync("Boomerang Cli"));
 
-const options = program.opts();
+  function my_parse_int(value: any) {
+    // parseInt takes a string and a radix
+    const parsedValue: number = parseInt(value, 10);
+    if (isNaN(parsedValue)) {
+      throw new Command.InvalidArgumentError("Not a number.");
+    }
+    return parsedValue;
+  }
 
-if (options.createBoomerang) {
-  createBoomerang()
-}
+  program
+    .version("1.0.0")
+    .description("An CLI for Boomerang UTXO")
+    .option("-h, --help", "List All Command")
+    .option(
+      "-c, --create-boomerang",
+      "Creates a boomerang UTXO and submits it to GGx and Bitcoin, with params <AMOUNT> <PRE_UTXOID> <PRIVATE KEY>",
+    )
+    .option(
+      "-r, --recover-boomerang <UTXID>",
+      "Spends a boomerang UTXO that has passed its timelock",
+    )
+    .option(
+      "-l, --list-boomerangs <SECP256k1 PUBKEY>",
+      "Queries GGx chain for boomerang UTXOs that are either confirmed or in the Bitcoin mempool",
+    )
+    .option("-a, --amount <amount>", "integer argument", my_parse_int)
+    .option("-t, --utxo-txid <txid>")
+    .option("-i, --utxo-index <index>", "integer argument", my_parse_int)
+    .option("-p, --private-key <key>")
+    .option("-pi, --private-key-internal <key-internal>")
+    .option("-pggx, --private-key-ggx <key-ggx>")
+    .option("-lo, --lock-time <lock>", "integer argument", my_parse_int)
+    .parse(process.argv);
 
-if (options.recoverBoomerang) {
-  recoverBoomerang()
-}
-if (options.listBoomerangs) {
-  listBoomerangs()
-}
-//define the following function
-async function createBoomerang() {
-  try {
-    console.log("## createBoomerang");
-  } catch (error) {
-    console.error("Error occurred while create boomerang!", error);
+  const options = program.opts();
+
+  //define the following function
+  async function createBoomerang() {
+    try {
+      console.log(
+        "## createBoomerang",
+        options.wifKey,
+        options.utxoTxid,
+        options.utxoIndex,
+        options.amount,
+        options.lockTime,
+      );
+
+      let privateKeyBuffer = Buffer.from(options.privateKey, "hex");
+      let privateKeyBufferInternal = Buffer.from(
+        options.privateKeyInternal,
+        "hex",
+      );
+      let privateKeyBufferGgx = Buffer.from(options.privateKeyGgx, "hex");
+      const keyPair = ECPair.fromPrivateKey(privateKeyBuffer, {
+        network: network,
+      });
+      const keyPairInteranl = ECPair.fromPrivateKey(privateKeyBufferInternal, {
+        network: network,
+      });
+      const keyPairGgx = ECPair.fromPrivateKey(privateKeyBufferGgx, {
+        network: network,
+      });
+
+      await start_taptree(
+        keyPair,
+        keyPairGgx,
+        options.utxoTxid,
+        options.utxoIndex,
+        options.amount,
+        options.lockTime,
+        "bcrt1qg4xrdyf0dzc26y39zyzkajleww5z0hgzvzl9fj", //ggx address
+        keyPairInteranl,
+      );
+    } catch (error) {
+      console.error("Error occurred while create boomerang!", error);
+    }
+  }
+
+  async function recoverBoomerang() {
+    try {
+      console.log("## recoverBoomerang");
+    } catch (error) {
+      console.error("Error occurred while recover boomerang!", error);
+    }
+  }
+
+  async function listBoomerangs() {
+    try {
+      console.log("## listBoomerangs");
+    } catch (error) {
+      console.error("Error occurred while list boomerangs!", error);
+    }
+  }
+
+  if (options.createBoomerang) {
+    console.log();
+    await createBoomerang();
+  }
+
+  if (options.recoverBoomerang) {
+    await recoverBoomerang();
+  }
+  if (options.listBoomerangs) {
+    await listBoomerangs();
   }
 }
 
-async function recoverBoomerang() {
+(async () => {
   try {
-    console.log("## recoverBoomerang");
-  } catch (error) {
-    console.error("Error occurred while recover boomerang!", error);
+    await main();
+  } catch (e: any) {
+    // Deal with the fact the chain failed
+    console.log("## bomerang-cli error:", e);
   }
-}
-
-async function listBoomerangs() {
-  try {
-    console.log("## listBoomerangs");
-  } catch (error) {
-    console.error("Error occurred while list boomerangs!", error);
-  }
-}
-
-console.log(figlet.textSync("Boomerang Cli"));
+  // `text` is not available here
+})();

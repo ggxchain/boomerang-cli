@@ -5,21 +5,36 @@
   "main": "index.js",
   "scripts": {
     "h": "npx tsc && node dist/index.js -h",
-    "c": "npx tsc && node dist/index.js -c 1",
+    "c": "npx tsc && node dist/index.js -c 1 --amount 10000 --utxo-txid=8b6b0a27f621ba157c698d63a1b312ac038bd9e3ac82114a6a8d64da674c2f32 --utxo-index 1 --private-key 2bd806c97f0e00af1a1fc3328fa763a9269723c8db8fac4f93af71db186d6e90 --private-key-ggx 81b637d8fcd2c6da6359e6963113a1170de795e4b725b84d1e0b4cfd9ec58ce9  --private-key-internal 1229101a0fcf2104e8808dab35661134aa5903867d44deb73ce1c7e4eb925be8  --lock-time 100000",
     "r": "npx tsc && node dist/index.js -r 0x1111111",
     "l": "npx tsc && node dist/index.js -l 0x222222",
     "build": "npx tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint src",
+    "p": "npx prettier . --write"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.6.7",
+    "bitcoin-core": "^4.2.0",
+    "bitcoinjs-lib": "^6.1.5",
     "commander": "^12.0.0",
-    "figlet": "^1.7.0"
+    "ecpair": "^2.1.0",
+    "figlet": "^1.7.0",
+    "json-rpc-2.0": "^1.7.0",
+    "tiny-secp256k1": "^2.2.3",
+    "varuint-bitcoin": "^1.1.2"
   },
   "devDependencies": {
     "@types/node": "^20.11.23",
-    "typescript": "^5.3.3"
+    "@typescript-eslint/eslint-plugin": "^7.2.0",
+    "@typescript-eslint/parser": "^7.2.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "3.2.5",
+    "typescript": "^5.4.2",
+    "typescript-eslint": "^7.2.0"
   }
 }
