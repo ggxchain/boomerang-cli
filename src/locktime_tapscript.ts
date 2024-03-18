@@ -8,7 +8,7 @@ import {
   Psbt,
   Payment,
 } from "bitcoinjs-lib";
-import { broadcast } from "./blockstream_utils";
+import { broadcast, get_rawtransaction } from "./blockstream_utils";
 import { ECPairFactory, ECPairAPI, TinySecp256k1Interface } from "ecpair";
 import { Taptree } from "bitcoinjs-lib/src/types";
 
@@ -16,8 +16,6 @@ const tinysecp: TinySecp256k1Interface = require("tiny-secp256k1");
 initEccLib(tinysecp as any);
 const ECPair: ECPairAPI = ECPairFactory(tinysecp);
 const network = networks.regtest;
-
-const LEAF_VERSION_TAPSCRIPT = 192;
 
 function tweakSigner(signer: Signer, opts: any = {}): Signer {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -54,7 +52,7 @@ function toXOnly(pubkey: Buffer): Buffer {
   return pubkey.subarray(1, 33);
 }
 
-function cltvCheckSigOutput(aQ: Signer, lockTime: number) {
+export function cltvCheckSigOutput(aQ: Signer, lockTime: number) {
   return script.fromASM(
     `
             ${script.number.encode(lockTime).toString("hex")}
@@ -69,7 +67,7 @@ function cltvCheckSigOutput(aQ: Signer, lockTime: number) {
 }
 
 export async function start_taptree(
-  keypair: Signer,
+  keypair_user: Signer,
   keypair_ggx: Signer,
   utxo_txid: string,
   utxo_index: number,
@@ -86,11 +84,9 @@ export async function start_taptree(
     "@@ script.number.encode(lock_time).toString('hex')",
     script.number.encode(lock_time).toString("hex"),
   );
-  // Construct script to pay to hash_lock_keypair if the correct preimage/secret is provided
+  const hash_lock_script = cltvCheckSigOutput(keypair_user, lock_time);
 
-  const hash_lock_script = cltvCheckSigOutput(keypair, lock_time); //script.fromASM(hash_script_asm); // todo use user keypair
-
-  const p2pk_script_asm = `${toXOnly(keypair.publicKey).toString("hex")} OP_CHECKSIG`;
+  const p2pk_script_asm = `${toXOnly(keypair_ggx.publicKey).toString("hex")} OP_CHECKSIG`;
   //todo use ggx public key
   //const p2pk_script_asm = `${toXOnly(keypair.publicKey).toString('hex')} OP_CHECKSIG OP_FALSE OP_IF OP_3 6f7264 OP_1 1 0x1e 6170706c69636174696f6e2f6a736f6e3b636861727365743d7574662d38 OP_1 5 0x4b   7b73656e6465723a20223465646663663964666536633062356338336431616233663738643162333961343665626163363739386530386531393736316635656438396563383363313022 OP_ENDIF`;
   const p2pk_script = script.fromASM(p2pk_script_asm);
@@ -104,85 +100,100 @@ export async function start_taptree(
     },
   ];
 
-  const redeem = {
-    output: hash_lock_script,
-    redeemVersion: LEAF_VERSION_TAPSCRIPT,
-  };
-
-  const { output, witness } = payments.p2tr({
+  const script_p2tr = payments.p2tr({
     internalPubkey: toXOnly(keypair_internal.publicKey),
     scriptTree,
-    redeem,
-    network: network,
+    network,
   });
+  const script_addr = script_p2tr.address ?? "";
+  console.log(script_addr);
 
-  const psbt = new Psbt({ network: network });
+  const raw_tx = await get_rawtransaction(utxo_txid);
+  const psbt = new Psbt({ network });
   psbt.addInput({
     hash: utxo_txid,
     index: utxo_index,
-    sequence: 10,
-    witnessUtxo: { value: amount, script: output! },
-  });
-  psbt.updateInput(0, {
-    tapLeafScript: [
-      {
-        leafVersion: redeem.redeemVersion,
-        script: redeem.output,
-        controlBlock: witness![witness!.length - 1],
-      },
-    ],
+    nonWitnessUtxo: Buffer.from(raw_tx, "hex"),
   });
 
-  const sendPubKey = toXOnly(keypair.publicKey);
-  const { address: sendAddress } = payments.p2tr({
-    internalPubkey: sendPubKey,
-    scriptTree,
-    network: network,
+  psbt.addOutput({
+    address: script_addr, // faucet address
+    value: amount - 300,
   });
 
-  psbt.addOutput({ value: amount - 150, address: sendAddress! });
-
-  //   psbt.updateOutput(0, {
-  //     tapInternalKey: sendPubKey,
-  //     tapTree: { leaves: tapTreeToList(scriptTree) },
-  //   });
-
-  await psbt.signInputAsync(0, keypair);
-  psbt.finalizeInput(0);
+  psbt.signInput(0, keypair_user);
+  psbt.finalizeAllInputs();
 
   const tx = psbt.extractTransaction();
-  console.log(`Broadcasting Transaction Hex: ${tx.toHex()}`);
-  const txid = await broadcast(tx.toHex());
-  console.log(`Success! Txid is ${txid}`);
+  const txid = (await broadcast(tx.toHex()))?.result;
+  console.log(`Success! Txid is ${txid}, index is 0`);
 }
 
 export async function recover_lock_amount(
   keypair: Signer,
+  keypair_ggx: Signer,
   utxo_txid: string,
   utxo_index: number,
   amount: number,
-  script_p2tr: Payment,
+  lock_time: number,
   recive_address: string,
+  keypair_internal: Signer,
 ) {
-  const key_spend_psbt = new Psbt({ network });
-  key_spend_psbt.addInput({
+  const hash_lock_script = cltvCheckSigOutput(keypair, lock_time);
+  const p2pk_script_asm = `${toXOnly(keypair_ggx.publicKey).toString("hex")} OP_CHECKSIG`;
+  //todo use ggx public key
+  //const p2pk_script_asm = `${toXOnly(keypair.publicKey).toString('hex')} OP_CHECKSIG OP_FALSE OP_IF OP_3 6f7264 OP_1 1 0x1e 6170706c69636174696f6e2f6a736f6e3b636861727365743d7574662d38 OP_1 5 0x4b   7b73656e6465723a20223465646663663964666536633062356338336431616233663738643162333961343665626163363739386530386531393736316635656438396563383363313022 OP_ENDIF`;
+  const p2pk_script = script.fromASM(p2pk_script_asm);
+
+  const scriptTree: Taptree = [
+    {
+      output: hash_lock_script,
+    },
+    {
+      output: p2pk_script,
+    },
+  ];
+
+  const hash_lock_redeem = {
+    output: hash_lock_script,
+    redeemVersion: 192,
+  };
+
+  const hash_lock_p2tr = payments.p2tr({
+    internalPubkey: toXOnly(keypair_internal.publicKey),
+    scriptTree,
+    redeem: hash_lock_redeem,
+    network,
+  });
+
+  const tapLeafScript = {
+    leafVersion: hash_lock_redeem.redeemVersion,
+    script: hash_lock_redeem.output,
+    controlBlock: hash_lock_p2tr.witness![hash_lock_p2tr.witness!.length - 1],
+  };
+
+  const psbt = new Psbt({ network });
+
+  console.log("### hash_lock_p2tr.output", hash_lock_p2tr.output, amount);
+
+  psbt.setLocktime(1000);
+  psbt.addInput({
     hash: utxo_txid,
     index: utxo_index,
-    witnessUtxo: { value: amount, script: script_p2tr.output! },
-    tapInternalKey: toXOnly(keypair.publicKey),
-    tapMerkleRoot: script_p2tr.hash,
+    witnessUtxo: { script: hash_lock_p2tr.output!, value: amount },
+    tapLeafScript: [tapLeafScript],
+    sequence: 0xfffffffe,
   });
-  key_spend_psbt.addOutput({
-    address: recive_address, //"bcrt1qg4xrdyf0dzc26y39zyzkajleww5z0hgzvzl9fj", // faucet address, todo replace to recive_address
-    value: amount - 150,
+  psbt.addOutput({
+    address: recive_address,
+    value: amount - 300,
   });
-  // We need to create a signer tweaked by script tree's merkle root
-  const tweakedSigner = tweakSigner(keypair, { tweakHash: script_p2tr.hash });
-  key_spend_psbt.signInput(0, tweakedSigner);
-  key_spend_psbt.finalizeAllInputs();
 
-  const tx = key_spend_psbt.extractTransaction();
-  console.log(`Broadcasting Transaction Hex: ${tx.toHex()}`);
-  const txid = await broadcast(tx.toHex());
-  console.log(`Success! Txid is ${txid}`);
+  // We need to create a signer tweaked by script tree's merkle root
+  psbt.signInput(0, keypair);
+  psbt.finalizeInput(0);
+
+  const tx = psbt.extractTransaction();
+  const txid = (await broadcast(tx.toHex()))?.result;
+  console.log(`Success! Txid is ${txid}, index is 0`);
 }

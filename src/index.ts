@@ -1,11 +1,11 @@
 const { Command } = require("commander"); // add this line
 const figlet = require("figlet");
 
-import { initEccLib, networks } from "bitcoinjs-lib";
+import { initEccLib, networks, payments } from "bitcoinjs-lib";
 
 import { ECPairFactory, ECPairAPI } from "ecpair";
 
-import { start_taptree } from "./locktime_tapscript";
+import { start_taptree, recover_lock_amount } from "./locktime_tapscript";
 
 import tinysecp = require("tiny-secp256k1");
 initEccLib(tinysecp as any);
@@ -60,7 +60,7 @@ async function main() {
     try {
       console.log(
         "## createBoomerang",
-        options.wifKey,
+        options.privateKey,
         options.utxoTxid,
         options.utxoIndex,
         options.amount,
@@ -83,6 +83,14 @@ async function main() {
         network: network,
       });
 
+      console.log("#### keyPair", keyPair.publicKey);
+
+      const { address } = payments.p2pkh({
+        pubkey: keyPair.publicKey,
+        network: networks.regtest,
+      });
+      console.log("@@@@ user address ", address);
+
       await start_taptree(
         keyPair,
         keyPairGgx,
@@ -101,6 +109,41 @@ async function main() {
   async function recoverBoomerang() {
     try {
       console.log("## recoverBoomerang");
+
+      let privateKeyBuffer = Buffer.from(options.privateKey, "hex");
+      let privateKeyBufferInternal = Buffer.from(
+        options.privateKeyInternal,
+        "hex",
+      );
+      let privateKeyBufferGgx = Buffer.from(options.privateKeyGgx, "hex");
+      const keyPair = ECPair.fromPrivateKey(privateKeyBuffer, {
+        network: network,
+      });
+      const keyPairInteranl = ECPair.fromPrivateKey(privateKeyBufferInternal, {
+        network: network,
+      });
+      const keyPairGgx = ECPair.fromPrivateKey(privateKeyBufferGgx, {
+        network: network,
+      });
+
+      console.log("#### keyPair", keyPair.publicKey);
+
+      const { address } = payments.p2pkh({
+        pubkey: keyPair.publicKey,
+        network: networks.regtest,
+      });
+      console.log("@@@@ user address ", address);
+
+      await recover_lock_amount(
+        keyPair,
+        keyPairGgx,
+        options.utxoTxid,
+        options.utxoIndex,
+        options.amount,
+        options.lockTime,
+        address!,
+        keyPairInteranl,
+      );
     } catch (error) {
       console.error("Error occurred while recover boomerang!", error);
     }
