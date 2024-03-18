@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "h": "npx tsc && node dist/index.js -h",
-    "c": "npx tsc && node dist/index.js -c 1 --amount  10000000000 --utxo-txid=9e6a279dc149aaa9538ad99f48b65695b702f4a68e49326f7ccb165969e6f70c --utxo-index 1 --private-key 2bd806c97f0e00af1a1fc3328fa763a9269723c8db8fac4f93af71db186d6e90 --private-key-ggx 81b637d8fcd2c6da6359e6963113a1170de795e4b725b84d1e0b4cfd9ec58ce9  --private-key-internal 1229101a0fcf2104e8808dab35661134aa5903867d44deb73ce1c7e4eb925be8  --lock-time 1000",
-    "r": "npx tsc && node dist/index.js -r 1 --amount  9999999700 --utxo-txid=15dfbad9b999134272b824694a617e69feeaad4101bc85f567172c8c370cfee0 --utxo-index 0 --private-key 2bd806c97f0e00af1a1fc3328fa763a9269723c8db8fac4f93af71db186d6e90 --private-key-ggx 81b637d8fcd2c6da6359e6963113a1170de795e4b725b84d1e0b4cfd9ec58ce9  --private-key-internal 1229101a0fcf2104e8808dab35661134aa5903867d44deb73ce1c7e4eb925be8  --lock-time 1000",
+    "c": "npx tsc && node dist/index.js -c 1 --amount  100000000 --utxo-txid=2204b333d051b391d7fca0ec19da82aa3b61ff8a30825f099c01172aa1fef75d --utxo-index 0 --private-key 2bd806c97f0e00af1a1fc3328fa763a9269723c8db8fac4f93af71db186d6e90 --private-key-ggx 81b637d8fcd2c6da6359e6963113a1170de795e4b725b84d1e0b4cfd9ec58ce9  --private-key-internal 1229101a0fcf2104e8808dab35661134aa5903867d44deb73ce1c7e4eb925be8  --lock-time 1000",
+    "r": "npx tsc && node dist/index.js -r 1 --amount  99999700 --utxo-txid=894770c167476e485027fc693f6d512712d0548fd9a730b533112f1727ced3f0 --utxo-index 0 --private-key 2bd806c97f0e00af1a1fc3328fa763a9269723c8db8fac4f93af71db186d6e90 --private-key-ggx 81b637d8fcd2c6da6359e6963113a1170de795e4b725b84d1e0b4cfd9ec58ce9  --private-key-internal 1229101a0fcf2104e8808dab35661134aa5903867d44deb73ce1c7e4eb925be8  --lock-time 1000",
     "l": "npx tsc && node dist/index.js -l 0x222222",
     "build": "npx tsc",
     "test": "echo \"Error: no test specified\" && exit 1",

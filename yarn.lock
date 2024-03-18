@@ -71,7 +71,7 @@
     "@nodelib/fs.stat" "2.0.5"
     run-parallel "^1.1.9"
 
-"@nodelib/fs.stat@^2.0.2", "@nodelib/fs.stat@2.0.5":
+"@nodelib/fs.stat@2.0.5", "@nodelib/fs.stat@^2.0.2":
   version "2.0.5"
   resolved "https://registry.npmjs.org/@nodelib/fs.stat/-/fs.stat-2.0.5.tgz"
   integrity sha512-RkhPPp2zrqDAQA/2jNhnztcPAlv64XdhIp7a7454A5ovI7Bukxgt7MX7udwAu3zg1DcpPU0rz3VV1SeaqvY4+A==
@@ -101,7 +101,7 @@
   resolved "https://registry.npmjs.org/@types/semver/-/semver-7.5.8.tgz"
   integrity sha512-I8EUhyrgfLrcTkzV3TSsGyl1tSuPrEDzr0yd5m90UgNxQkyDXULk3b6MlQqTCpZpNtWe1K0hzclnZkTcLBe2UQ==
 
-"@typescript-eslint/eslint-plugin@^7.2.0", "@typescript-eslint/eslint-plugin@7.2.0":
+"@typescript-eslint/eslint-plugin@7.2.0", "@typescript-eslint/eslint-plugin@^7.2.0":
   version "7.2.0"
   resolved "https://registry.npmjs.org/@typescript-eslint/eslint-plugin/-/eslint-plugin-7.2.0.tgz"
   integrity sha512-mdekAHOqS9UjlmyF/LSs6AIEvfceV749GFxoBAjwAv0nkevfKHWQFDMcBZWUiIC5ft6ePWivXoS36aKQ0Cy3sw==
@@ -118,7 +118,7 @@
     semver "^7.5.4"
     ts-api-utils "^1.0.1"
 
-"@typescript-eslint/parser@^7.0.0", "@typescript-eslint/parser@^7.2.0", "@typescript-eslint/parser@7.2.0":
+"@typescript-eslint/parser@7.2.0", "@typescript-eslint/parser@^7.2.0":
   version "7.2.0"
   resolved "https://registry.npmjs.org/@typescript-eslint/parser/-/parser-7.2.0.tgz"
   integrity sha512-5FKsVcHTk6TafQKQbuIVkXq58Fnbkd2wDL4LB7AURN7RUOu1utVP+G8+6u3ZhEroW3DF6hyo3ZEXxgKgp4KeCg==
@@ -204,7 +204,7 @@ acorn-jsx@^5.3.2:
   resolved "https://registry.npmjs.org/acorn-jsx/-/acorn-jsx-5.3.2.tgz"
   integrity sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==
 
-"acorn@^6.0.0 || ^7.0.0 || ^8.0.0", acorn@^8.9.0:
+acorn@^8.9.0:
   version "8.11.3"
   resolved "https://registry.npmjs.org/acorn/-/acorn-8.11.3.tgz"
   integrity sha512-Y9rRfJG5jcKOE0CLisYbojUjIrIEE7AGMzA/Sm4BslANhbS+cDMpgBdcPT91oJ7OuJ9hYJBx59RjbhxVnrF8Xg==
@@ -248,7 +248,7 @@ asn1@~0.2.3:
   dependencies:
     safer-buffer "~2.1.0"
 
-assert-plus@^1.0.0, assert-plus@1.0.0:
+assert-plus@1.0.0, assert-plus@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/assert-plus/-/assert-plus-1.0.0.tgz"
   integrity sha512-NfJ4UzBCcQGLDlQq7nHxH+tv3kyZ0hHQqF5BO6J7tNJeP5do1llPr8dZ8zHonfhAu0PHAdMkSo+8o0wxg9lZWw==
@@ -331,7 +331,7 @@ bitcoin-core@^4.2.0:
 
 bitcoinjs-lib@^6.1.5:
   version "6.1.5"
-  resolved "https://registry.npmjs.org/bitcoinjs-lib/-/bitcoinjs-lib-6.1.5.tgz"
+  resolved "https://registry.yarnpkg.com/bitcoinjs-lib/-/bitcoinjs-lib-6.1.5.tgz#3b03509ae7ddd80a440f10fc38c4a97f0a028d8c"
   integrity sha512-yuf6xs9QX/E8LWE2aMJPNd0IxGofwfuVOiYdNUESkc+2bHHVKjhJd8qewqapeoolh9fihzHGoDCB5Vkr57RZCQ==
   dependencies:
     "@noble/hashes" "^1.2.0"
@@ -377,14 +377,6 @@ bs58@^5.0.0:
   dependencies:
     base-x "^4.0.0"
 
-bs58check@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.npmjs.org/bs58check/-/bs58check-3.0.1.tgz"
-  integrity sha512-hjuuJvoWEybo7Hn/0xOrczQKKEKD63WguEjlhLExYs2wUBcebDC1jDNK17eEAD2lYfw82d5ASC1d7K3SWszjaQ==
-  dependencies:
-    "@noble/hashes" "^1.2.0"
-    bs58 "^5.0.0"
-
 bs58check@<3.0.0:
   version "2.1.2"
   resolved "https://registry.npmjs.org/bs58check/-/bs58check-2.1.2.tgz"
@@ -393,6 +385,14 @@ bs58check@<3.0.0:
     bs58 "^4.0.0"
     create-hash "^1.1.0"
     safe-buffer "^5.1.2"
+
+bs58check@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.npmjs.org/bs58check/-/bs58check-3.0.1.tgz"
+  integrity sha512-hjuuJvoWEybo7Hn/0xOrczQKKEKD63WguEjlhLExYs2wUBcebDC1jDNK17eEAD2lYfw82d5ASC1d7K3SWszjaQ==
+  dependencies:
+    "@noble/hashes" "^1.2.0"
+    bs58 "^5.0.0"
 
 bunyan@^1.8.1:
   version "1.8.15"
@@ -498,21 +498,7 @@ debug@^2.2.0:
   dependencies:
     ms "2.0.0"
 
-debug@^4.3.1:
-  version "4.3.4"
-  resolved "https://registry.npmjs.org/debug/-/debug-4.3.4.tgz"
-  integrity sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==
-  dependencies:
-    ms "2.1.2"
-
-debug@^4.3.2:
-  version "4.3.4"
-  resolved "https://registry.npmjs.org/debug/-/debug-4.3.4.tgz"
-  integrity sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==
-  dependencies:
-    ms "2.1.2"
-
-debug@^4.3.4:
+debug@^4.3.1, debug@^4.3.2, debug@^4.3.4:
   version "4.3.4"
   resolved "https://registry.npmjs.org/debug/-/debug-4.3.4.tgz"
   integrity sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==
@@ -598,7 +584,7 @@ eslint-visitor-keys@^3.3.0, eslint-visitor-keys@^3.4.1, eslint-visitor-keys@^3.4
   resolved "https://registry.npmjs.org/eslint-visitor-keys/-/eslint-visitor-keys-3.4.3.tgz"
   integrity sha512-wpc+LXeiyiisxPlEkUzU6svyS1frIO3Mgxj1fdy7Pm8Ygzguax2N3Fa/D/ag1WqbOprdI+uY6wMUl8/a2G+iag==
 
-"eslint@^6.0.0 || ^7.0.0 || >=8.0.0", eslint@^8.56.0, eslint@^8.57.0, eslint@>=7.0.0:
+eslint@^8.57.0:
   version "8.57.0"
   resolved "https://registry.npmjs.org/eslint/-/eslint-8.57.0.tgz"
   integrity sha512-dZ6+mexnaTIbSBZWgou51U6OmzIhYM2VcNdtiTtI7qPNZm35Akpr0f6vtw3w1Kmn5PYo+tZVfh13WrhpS6oLqQ==
@@ -680,7 +666,7 @@ extend@~3.0.2:
   resolved "https://registry.npmjs.org/extend/-/extend-3.0.2.tgz"
   integrity sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g==
 
-extsprintf@^1.2.0, extsprintf@1.3.0:
+extsprintf@1.3.0, extsprintf@^1.2.0:
   version "1.3.0"
   resolved "https://registry.npmjs.org/extsprintf/-/extsprintf-1.3.0.tgz"
   integrity sha512-11Ndz7Nv+mvAC1j0ktTa7fAb0vLyGGX+rMHNBYQviQDGU0Hw7lhctJANqbPhu9nV9/izT/IntTgZ7Im/9LJs9g==
@@ -922,7 +908,7 @@ inflight@^1.0.4:
     once "^1.3.0"
     wrappy "1"
 
-inherits@^2.0.1, inherits@^2.0.3, inherits@^2.0.4, inherits@2:
+inherits@2, inherits@^2.0.1, inherits@^2.0.3, inherits@^2.0.4:
   version "2.0.4"
   resolved "https://registry.npmjs.org/inherits/-/inherits-2.0.4.tgz"
   integrity sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==
@@ -1096,7 +1082,7 @@ mime-types@^2.1.12, mime-types@~2.1.19:
   dependencies:
     mime-db "1.52.0"
 
-minimatch@^3.0.5, minimatch@^3.1.1, minimatch@^3.1.2, "minimatch@2 || 3":
+"minimatch@2 || 3", minimatch@^3.0.5, minimatch@^3.1.1, minimatch@^3.1.2:
   version "3.1.2"
   resolved "https://registry.npmjs.org/minimatch/-/minimatch-3.1.2.tgz"
   integrity sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==
@@ -1287,7 +1273,7 @@ readable-stream@^3.6.0:
     string_decoder "^1.1.1"
     util-deprecate "^1.0.1"
 
-request@^2.53.0, request@>=2.27.0:
+request@^2.53.0:
   version "2.88.2"
   resolved "https://registry.npmjs.org/request/-/request-2.88.2.tgz"
   integrity sha512-MsvtOrfG9ZcrOwAW+Qi+F6HbD0CWXEh9ou77uOb7FM2WPhwT7smM833PzanhJLsgXjN89Ir6V2PczXNnMpwKhw==
@@ -1519,7 +1505,7 @@ typescript-eslint@^7.2.0:
     "@typescript-eslint/eslint-plugin" "7.2.0"
     "@typescript-eslint/parser" "7.2.0"
 
-typescript@^5.4.2, typescript@>=4.2.0:
+typescript@^5.4.2:
   version "5.4.2"
   resolved "https://registry.npmjs.org/typescript/-/typescript-5.4.2.tgz"
   integrity sha512-+2/g0Fds1ERlP6JsakQQDXjZdZMM+rqpamFZJEKh4kwTIn3iDkgKtby0CeNd5ATNZ4Ry1ax15TMx0W2V+miizQ==
