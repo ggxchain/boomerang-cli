@@ -5,11 +5,11 @@
   "main": "index.js",
   "scripts": {
     "h": "npx tsc && node dist/index.js -h",
-    "c": "npx tsc && node dist/index.js -c 1 --amount  100000000 --utxo-txid=2204b333d051b391d7fca0ec19da82aa3b61ff8a30825f099c01172aa1fef75d --utxo-index 0 --private-key 2bd806c97f0e00af1a1fc3328fa763a9269723c8db8fac4f93af71db186d6e90 --private-key-ggx 81b637d8fcd2c6da6359e6963113a1170de795e4b725b84d1e0b4cfd9ec58ce9  --private-key-internal 1229101a0fcf2104e8808dab35661134aa5903867d44deb73ce1c7e4eb925be8  --lock-time 1000",
-    "r": "npx tsc && node dist/index.js -r 1 --amount  99999700 --utxo-txid=894770c167476e485027fc693f6d512712d0548fd9a730b533112f1727ced3f0 --utxo-index 0 --private-key 2bd806c97f0e00af1a1fc3328fa763a9269723c8db8fac4f93af71db186d6e90 --private-key-ggx 81b637d8fcd2c6da6359e6963113a1170de795e4b725b84d1e0b4cfd9ec58ce9  --private-key-internal 1229101a0fcf2104e8808dab35661134aa5903867d44deb73ce1c7e4eb925be8  --lock-time 1000",
+    "c": "npx tsc && node dist/index.js -c 1 --amount  100000000 --utxo-txid=8cb0c65e8ab823b41be494280c260292f9e171d65b068c8e4acae397169a70d8 --utxo-index 0 --private-key 2bd806c97f0e00af1a1fc3328fa763a9269723c8db8fac4f93af71db186d6e90 --public-key-ggx 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10  --private-key-internal 1229101a0fcf2104e8808dab35661134aa5903867d44deb73ce1c7e4eb925be8  --lock-time 3600",
+    "r": "npx tsc && node dist/index.js -r 1 --amount  99999700 --utxo-txid=1f95097181dc27964a4c9802641bd9363704cee4070a6c60f756438ecc7ec205 --utxo-index 0 --private-key 2bd806c97f0e00af1a1fc3328fa763a9269723c8db8fac4f93af71db186d6e90 --public-key-ggx 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10  --private-key-internal 1229101a0fcf2104e8808dab35661134aa5903867d44deb73ce1c7e4eb925be8  --lock-time 3600",
     "l": "npx tsc && node dist/index.js -l 0x222222",
     "build": "npx tsc",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha -r ts-node/register src/test/*.test.ts --timeout 60000 --exit",
     "lint": "eslint src",
     "p": "npx prettier . --write"
   },
@@ -28,12 +28,17 @@
     "varuint-bitcoin": "^1.1.2"
   },
   "devDependencies": {
+    "@types/chai": "^4.3.13",
+    "@types/mocha": "^10.0.6",
     "@types/node": "^20.11.23",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
+    "mocha": "^10.3.0",
     "prettier": "3.2.5",
+    "regtest-client": "^0.2.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.4.2",
     "typescript-eslint": "^7.2.0"
   }

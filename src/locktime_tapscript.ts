@@ -67,7 +67,7 @@ export function cltvCheckSigOutput(aQ: Signer, lockTime: number) {
   );
 }
 
-export async function start_taptree(
+export async function create_boomerang(
   keypair_user: Signer,
   keypair_ggx: Signer,
   utxo_txid: string,
@@ -128,6 +128,8 @@ export async function start_taptree(
   const tx = psbt.extractTransaction();
   const txid = (await broadcast(tx.toHex()))?.result;
   console.log(`Success! Txid is ${txid}, index is 0`);
+
+  return txid;
 }
 
 export async function recover_lock_amount(
@@ -199,4 +201,5 @@ export async function recover_lock_amount(
   //console.log("### tx is ", tx.toHex());
   const txid = (await broadcast(tx.toHex()))?.result;
   console.log(`Success! Txid is ${txid}, index is 0`);
+  return txid;
 }

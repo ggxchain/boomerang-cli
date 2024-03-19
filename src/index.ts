@@ -5,7 +5,7 @@ import { initEccLib, networks, payments } from "bitcoinjs-lib";
 
 import { ECPairFactory, ECPairAPI } from "ecpair";
 
-import { start_taptree, recover_lock_amount } from "./locktime_tapscript";
+import { create_boomerang, recover_lock_amount } from "./locktime_tapscript";
 
 import tinysecp = require("tiny-secp256k1");
 initEccLib(tinysecp as any);
@@ -91,7 +91,7 @@ async function main() {
       });
       console.log("@@@@ user address ", address);
 
-      await start_taptree(
+      await create_boomerang(
         keyPair,
         keyPairGgx,
         options.utxoTxid,

@@ -1,5 +1,8 @@
 import axios from "axios";
 
+const APIPASS = process.env.APIPASS || "rpcpassword";
+const APIURL = process.env.APIURL || "http://localhost:18332";
+
 export async function broadcast(txHex: string) {
   const body = {
     jsonrpc: "1.0",
@@ -8,12 +11,11 @@ export async function broadcast(txHex: string) {
     params: [txHex],
   };
 
-  const port = 18332;
   try {
-    const response = await axios.post(`http://127.0.0.1:${port}/`, body, {
+    const response = await axios.post(APIURL, body, {
       auth: {
         username: "rpcuser",
-        password: "rpcpassword",
+        password: APIPASS,
       },
     });
 
@@ -41,13 +43,12 @@ export async function get_balance() {
     id: "getbalance",
     params: ["*", 6],
   };
-  const port = 18332;
 
   try {
-    const response = await axios.post(`http://127.0.0.1:${port}/`, body, {
+    const response = await axios.post(APIURL, body, {
       auth: {
         username: "rpcuser",
-        password: "rpcpassword",
+        password: APIPASS,
       },
     });
 
@@ -64,13 +65,12 @@ export async function get_rawtransaction(txid: string) {
     id: "getrawtx",
     params: [txid],
   };
-  const port = 18332;
 
   try {
-    const response = await axios.post(`http://127.0.0.1:${port}/`, body, {
+    const response = await axios.post(APIURL, body, {
       auth: {
         username: "rpcuser",
-        password: "rpcpassword",
+        password: APIPASS,
       },
     });
 
