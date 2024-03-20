@@ -102,7 +102,7 @@ export async function createBoomerangAmount(
     network,
   });
   const scriptAddr = scriptP2tr.address ?? "";
-  console.log(scriptAddr);
+  console.log("scriptAddr", scriptAddr);
 
   const rawTx = await getRawTransaction(utxoTxid);
   const psbt = new Psbt({ network });
