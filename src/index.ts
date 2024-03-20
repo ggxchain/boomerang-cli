@@ -5,11 +5,14 @@ import { initEccLib, networks, payments } from "bitcoinjs-lib";
 
 import { ECPairFactory, ECPairAPI } from "ecpair";
 
-import { create_boomerang, recover_lock_amount } from "./locktime_tapscript";
+import { createBoomerangAmount, recoverLockAmount } from "./locktime_tapscript";
 
 import tinysecp = require("tiny-secp256k1");
 initEccLib(tinysecp as any);
 const ECPair: ECPairAPI = ECPairFactory(tinysecp);
+
+const GGX_PUBLIC_KEY =
+  "4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10";
 
 const network = networks.testnet;
 
@@ -19,7 +22,7 @@ const program = new Command();
 async function main() {
   console.log(figlet.textSync("Boomerang Cli"));
 
-  function my_parse_int(value: any) {
+  function myParseInt(value: any) {
     // parseInt takes a string and a radix
     const parsedValue: number = parseInt(value, 10);
     if (isNaN(parsedValue)) {
@@ -44,13 +47,13 @@ async function main() {
       "-l, --list-boomerangs <SECP256k1 PUBKEY>",
       "Queries GGx chain for boomerang UTXOs that are either confirmed or in the Bitcoin mempool",
     )
-    .option("-a, --amount <amount>", "integer argument", my_parse_int)
+    .option("-a, --amount <amount>", "integer argument", myParseInt)
     .option("-t, --utxo-txid <txid>")
-    .option("-i, --utxo-index <index>", "integer argument", my_parse_int)
+    .option("-i, --utxo-index <index>", "integer argument", myParseInt)
     .option("-p, --private-key <key>")
     .option("-pi, --private-key-internal <key-internal>")
-    .option("-pggx, --private-key-ggx <key-ggx>")
-    .option("-lo, --lock-time <lock>", "integer argument", my_parse_int)
+    .option("-pggx, --public-key-ggx <public-key-ggx>")
+    .option("-lo, --lock-time <lock>", "integer argument", myParseInt)
     .parse(process.argv);
 
   const options = program.opts();
@@ -58,28 +61,15 @@ async function main() {
   //define the following function
   async function createBoomerang() {
     try {
-      console.log(
-        "## createBoomerang",
-        options.privateKey,
-        options.utxoTxid,
-        options.utxoIndex,
-        options.amount,
-        options.lockTime,
-      );
-
-      let privateKeyBuffer = Buffer.from(options.privateKey, "hex");
-      let privateKeyBufferInternal = Buffer.from(
+      const privateKeyBuffer = Buffer.from(options.privateKey, "hex");
+      const privateKeyBufferInternal = Buffer.from(
         options.privateKeyInternal,
         "hex",
       );
-      let privateKeyBufferGgx = Buffer.from(options.privateKeyGgx, "hex");
       const keyPair = ECPair.fromPrivateKey(privateKeyBuffer, {
         network: network,
       });
       const keyPairInteranl = ECPair.fromPrivateKey(privateKeyBufferInternal, {
-        network: network,
-      });
-      const keyPairGgx = ECPair.fromPrivateKey(privateKeyBufferGgx, {
         network: network,
       });
 
@@ -89,16 +79,15 @@ async function main() {
         pubkey: keyPair.publicKey,
         network: networks.regtest,
       });
-      console.log("@@@@ user address ", address);
+      console.log("### user address ", address);
 
-      await create_boomerang(
+      await createBoomerangAmount(
         keyPair,
-        keyPairGgx,
         options.utxoTxid,
         options.utxoIndex,
         options.amount,
         options.lockTime,
-        "bcrt1qg4xrdyf0dzc26y39zyzkajleww5z0hgzvzl9fj", //ggx address
+        GGX_PUBLIC_KEY,
         keyPairInteranl,
       );
     } catch (error) {
@@ -110,19 +99,16 @@ async function main() {
     try {
       console.log("## recoverBoomerang");
 
-      let privateKeyBuffer = Buffer.from(options.privateKey, "hex");
-      let privateKeyBufferInternal = Buffer.from(
+      const privateKeyBuffer = Buffer.from(options.privateKey, "hex");
+      const privateKeyBufferInternal = Buffer.from(
         options.privateKeyInternal,
         "hex",
       );
-      let privateKeyBufferGgx = Buffer.from(options.privateKeyGgx, "hex");
+
       const keyPair = ECPair.fromPrivateKey(privateKeyBuffer, {
         network: network,
       });
       const keyPairInteranl = ECPair.fromPrivateKey(privateKeyBufferInternal, {
-        network: network,
-      });
-      const keyPairGgx = ECPair.fromPrivateKey(privateKeyBufferGgx, {
         network: network,
       });
 
@@ -132,15 +118,15 @@ async function main() {
         pubkey: keyPair.publicKey,
         network: networks.regtest,
       });
-      console.log("@@@@ user address ", address);
+      console.log("### user address ", address);
 
-      await recover_lock_amount(
+      await recoverLockAmount(
         keyPair,
-        keyPairGgx,
         options.utxoTxid,
         options.utxoIndex,
         options.amount,
         options.lockTime,
+        GGX_PUBLIC_KEY,
         address!,
         keyPairInteranl,
       );
@@ -158,7 +144,6 @@ async function main() {
   }
 
   if (options.createBoomerang) {
-    console.log();
     await createBoomerang();
   }
 

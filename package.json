@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "h": "npx tsc && node dist/index.js -h",
-    "c": "npx tsc && node dist/index.js -c 1 --amount  100000000 --utxo-txid=8cb0c65e8ab823b41be494280c260292f9e171d65b068c8e4acae397169a70d8 --utxo-index 0 --private-key 2bd806c97f0e00af1a1fc3328fa763a9269723c8db8fac4f93af71db186d6e90 --private-key-ggx 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10  --private-key-internal 1229101a0fcf2104e8808dab35661134aa5903867d44deb73ce1c7e4eb925be8  --lock-time 3600",
-    "r": "npx tsc && node dist/index.js -r 1 --amount  99999700 --utxo-txid=1f95097181dc27964a4c9802641bd9363704cee4070a6c60f756438ecc7ec205 --utxo-index 0 --private-key 2bd806c97f0e00af1a1fc3328fa763a9269723c8db8fac4f93af71db186d6e90 --private-key-ggx 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10  --private-key-internal 1229101a0fcf2104e8808dab35661134aa5903867d44deb73ce1c7e4eb925be8  --lock-time 3600",
+    "c": "npx tsc && node dist/index.js -c 1 --amount  100000000 --utxo-txid=eea086015d32885c64b6870bdbbe865b1a30f037dc9d437b0bb34e5b844f34a7 --utxo-index 0 --private-key 2bd806c97f0e00af1a1fc3328fa763a9269723c8db8fac4f93af71db186d6e90   --private-key-internal 1229101a0fcf2104e8808dab35661134aa5903867d44deb73ce1c7e4eb925be8  --lock-time 3600",
+    "r": "npx tsc && node dist/index.js -r 1 --amount  99999700 --utxo-txid=1f95097181dc27964a4c9802641bd9363704cee4070a6c60f756438ecc7ec205 --utxo-index 0 --private-key 2bd806c97f0e00af1a1fc3328fa763a9269723c8db8fac4f93af71db186d6e90   --private-key-internal 1229101a0fcf2104e8808dab35661134aa5903867d44deb73ce1c7e4eb925be8  --lock-time 3600",
     "l": "npx tsc && node dist/index.js -l 0x222222",
     "build": "npx tsc",
     "test": "mocha",

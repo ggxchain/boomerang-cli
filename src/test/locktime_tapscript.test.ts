@@ -2,7 +2,11 @@ import { expect } from "chai";
 import { initEccLib, networks, payments } from "bitcoinjs-lib";
 import { RegtestUtils } from "regtest-client";
 
-import { create_boomerang, recover_lock_amount } from "../locktime_tapscript";
+import {
+  createBoomerangAmount,
+  recoverLockAmount,
+  toXOnly,
+} from "../locktime_tapscript";
 
 import ECPairFactory from "ecpair";
 import * as ecc from "tiny-secp256k1";
@@ -25,10 +29,10 @@ const ggx = ECPair.fromWIF(
   regtest,
 );
 
-// test create_boomerang
-describe("create_boomerang", function () {
-  it("can create_boomerang", async function () {
-    const lock_time = 100;
+// test createBoomerang
+describe("createBoomerang", function () {
+  it("can createBoomerang", async function () {
+    const lockTime = 100;
 
     const aliceAddress = payments.p2pkh({
       pubkey: alice.publicKey,
@@ -43,13 +47,12 @@ describe("create_boomerang", function () {
     const unspent = await regtestUtils.faucet(aliceAddress.address!, 1e5);
     const keypairInteranl = ECPair.makeRandom({ network: regtest });
 
-    const txid = await create_boomerang(
+    const txid = await createBoomerangAmount(
       alice,
-      ggx,
       unspent.txId,
       unspent.vout,
       unspent.value,
-      lock_time,
+      lockTime,
       ggxAddress.address!,
       keypairInteranl,
     );
@@ -58,11 +61,11 @@ describe("create_boomerang", function () {
   });
 });
 
-// test recover_lock_amount
-describe("recover_lock_amount", function () {
-  it("can recover_lock_amount", async function () {
+// test recoverLockAmount
+describe("recoverLockAmount", function () {
+  it("can recoverLockAmount", async function () {
     const height = await regtestUtils.height();
-    const lock_time = height + 100;
+    const lockTime = height + 100;
 
     const aliceAddress = payments.p2pkh({
       pubkey: alice.publicKey,
@@ -70,7 +73,7 @@ describe("recover_lock_amount", function () {
     });
 
     const ggxAddress = payments.p2pkh({
-      pubkey: alice.publicKey,
+      pubkey: ggx.publicKey,
       network: regtest,
     });
 
@@ -78,13 +81,12 @@ describe("recover_lock_amount", function () {
 
     const keypairInteranl = ECPair.makeRandom({ network: regtest });
 
-    const txidCreateBoomerang = await create_boomerang(
+    const txidCreateBoomerang = await createBoomerangAmount(
       alice,
-      ggx,
       unspent.txId,
       unspent.vout,
       unspent.value,
-      lock_time,
+      lockTime,
       ggxAddress.address!,
       keypairInteranl,
     );
@@ -92,26 +94,26 @@ describe("recover_lock_amount", function () {
     expect(txidCreateBoomerang).to.not.be.equal(null);
 
     const txCreateBoomerang = await regtestUtils.fetch(txidCreateBoomerang)!;
-    const txid = await recover_lock_amount(
+    const txid = await recoverLockAmount(
       alice,
-      ggx,
       txCreateBoomerang.txId,
       0,
       txCreateBoomerang.outs[0].value,
-      lock_time,
-      ggxAddress.address!,
+      lockTime,
+      toXOnly(ggx.publicKey).toString("hex"),
+      aliceAddress.address!,
       keypairInteranl,
     );
     expect(txid).to.be.equal(null);
 
-    const txidNew = await recover_lock_amount(
+    const txidNew = await recoverLockAmount(
       alice,
-      ggx,
       txCreateBoomerang.txId,
       0,
       txCreateBoomerang.outs[0].value,
-      lock_time,
-      ggxAddress.address!,
+      lockTime,
+      toXOnly(ggx.publicKey).toString("hex"),
+      aliceAddress.address!,
       keypairInteranl,
     );
     expect(txidNew).to.not.be.equal(null);

@@ -36,7 +36,7 @@ export async function broadcast(txHex: string) {
   }
 }
 
-export async function get_balance() {
+export async function getBalance() {
   const body = {
     jsonrpc: "1.0",
     method: "getbalance",
@@ -54,11 +54,11 @@ export async function get_balance() {
 
     return response.data;
   } catch (error: any) {
-    console.log("### get_balance error", error);
+    console.log("### getBalance error", error);
   }
 }
 
-export async function get_rawtransaction(txid: string) {
+export async function getRawTransaction(txid: string) {
   const body = {
     jsonrpc: "1.0",
     method: "getrawtransaction",
@@ -76,6 +76,6 @@ export async function get_rawtransaction(txid: string) {
 
     return response.data.result;
   } catch (error: any) {
-    console.log("### get_rawtransaction error", error);
+    console.log("### getRawTransaction error", error);
   }
 }

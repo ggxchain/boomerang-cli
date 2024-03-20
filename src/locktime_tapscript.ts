@@ -8,7 +8,7 @@ import {
   Psbt,
   Payment,
 } from "bitcoinjs-lib";
-import { broadcast, get_rawtransaction } from "./blockstream_utils";
+import { broadcast, getRawTransaction } from "./blockstream_utils";
 import { ECPairFactory, ECPairAPI, TinySecp256k1Interface } from "ecpair";
 import { Taptree } from "bitcoinjs-lib/src/types";
 
@@ -48,7 +48,7 @@ function tapTweakHash(pubKey: Buffer, h: Buffer | undefined): Buffer {
   );
 }
 
-function toXOnly(pubkey: Buffer): Buffer {
+export function toXOnly(pubkey: Buffer): Buffer {
   return pubkey.subarray(1, 33);
 }
 
@@ -67,62 +67,57 @@ export function cltvCheckSigOutput(aQ: Signer, lockTime: number) {
   );
 }
 
-export async function create_boomerang(
-  keypair_user: Signer,
-  keypair_ggx: Signer,
-  utxo_txid: string,
-  utxo_index: number,
+export async function createBoomerangAmount(
+  keypairUser: Signer,
+  utxoTxid: string,
+  utxoIndex: number,
   amount: number,
-  lock_time: number,
-  ggx_address: string,
-  keypair_internal: Signer,
+  lockTime: number,
+  ggxPublicKey: string,
+  keypairInternal: Signer,
 ) {
   // Create a tap tree with two spend paths
   // One path should allow spending using secret
   // The other path should pay to another pubkey
 
-  console.log(
-    "@@ script.number.encode(lock_time).toString('hex')",
-    script.number.encode(lock_time).toString("hex"),
-  );
-  const hash_lock_script = cltvCheckSigOutput(keypair_user, lock_time);
+  const hashLockScript = cltvCheckSigOutput(keypairUser, lockTime);
 
-  const p2pk_script_asm = `${toXOnly(keypair_ggx.publicKey).toString("hex")} OP_CHECKSIG`;
+  const p2pkScriptAsm = `${ggxPublicKey} OP_CHECKSIG`;
   //todo use ggx public key
-  //const p2pk_script_asm = `${toXOnly(keypair.publicKey).toString('hex')} OP_CHECKSIG OP_FALSE OP_IF OP_3 6f7264 OP_1 1 0x1e 6170706c69636174696f6e2f6a736f6e3b636861727365743d7574662d38 OP_1 5 0x4b   7b73656e6465723a20223465646663663964666536633062356338336431616233663738643162333961343665626163363739386530386531393736316635656438396563383363313022 OP_ENDIF`;
-  const p2pk_script = script.fromASM(p2pk_script_asm);
+  //const p2pkScript_asm = `${toXOnly(keypair.publicKey).toString('hex')} OP_CHECKSIG OP_FALSE OP_IF OP_3 6f7264 OP_1 1 0x1e 6170706c69636174696f6e2f6a736f6e3b636861727365743d7574662d38 OP_1 5 0x4b   7b73656e6465723a20223465646663663964666536633062356338336431616233663738643162333961343665626163363739386530386531393736316635656438396563383363313022 OP_ENDIF`;
+  const p2pkScript = script.fromASM(p2pkScriptAsm);
 
   const scriptTree: Taptree = [
     {
-      output: hash_lock_script,
+      output: hashLockScript,
     },
     {
-      output: p2pk_script,
+      output: p2pkScript,
     },
   ];
 
-  const script_p2tr = payments.p2tr({
-    internalPubkey: toXOnly(keypair_internal.publicKey),
+  const scriptP2tr = payments.p2tr({
+    internalPubkey: toXOnly(keypairInternal.publicKey),
     scriptTree,
     network,
   });
-  const script_addr = script_p2tr.address ?? "";
-  console.log(script_addr);
+  const scriptAddr = scriptP2tr.address ?? "";
+  console.log(scriptAddr);
 
-  const raw_tx = await get_rawtransaction(utxo_txid);
+  const rawTx = await getRawTransaction(utxoTxid);
   const psbt = new Psbt({ network });
   psbt.addInput({
-    hash: utxo_txid,
-    index: utxo_index,
-    nonWitnessUtxo: Buffer.from(raw_tx, "hex"),
+    hash: utxoTxid,
+    index: utxoIndex,
+    nonWitnessUtxo: Buffer.from(rawTx, "hex"),
   });
 
   psbt.addOutput({
-    address: script_addr, // faucet address
+    address: scriptAddr, // faucet address
     value: amount - 300,
   });
 
-  psbt.signInput(0, keypair_user);
+  psbt.signInput(0, keypairUser);
   psbt.finalizeAllInputs();
 
   const tx = psbt.extractTransaction();
@@ -132,47 +127,47 @@ export async function create_boomerang(
   return txid;
 }
 
-export async function recover_lock_amount(
+export async function recoverLockAmount(
   keypair: Signer,
-  keypair_ggx: Signer,
-  utxo_txid: string,
-  utxo_index: number,
+  utxoTxid: string,
+  utxoIndex: number,
   amount: number,
-  lock_time: number,
-  recive_address: string,
-  keypair_internal: Signer,
+  lockTime: number,
+  ggxPublicKey: string,
+  reciveAddress: string,
+  keypairInternal: Signer,
 ) {
-  const hash_lock_script = cltvCheckSigOutput(keypair, lock_time);
-  const p2pk_script_asm = `${toXOnly(keypair_ggx.publicKey).toString("hex")} OP_CHECKSIG`;
+  const hashLockScript = cltvCheckSigOutput(keypair, lockTime);
+  const p2pkScriptAsm = `${ggxPublicKey} OP_CHECKSIG`;
 
   //todo use ggx public key
-  //const p2pk_script_asm = `${toXOnly(keypair.publicKey).toString('hex')} OP_CHECKSIG OP_FALSE OP_IF OP_3 6f7264 OP_1 1 0x1e 6170706c69636174696f6e2f6a736f6e3b636861727365743d7574662d38 OP_1 5 0x4b   7b73656e6465723a20223465646663663964666536633062356338336431616233663738643162333961343665626163363739386530386531393736316635656438396563383363313022 OP_ENDIF`;
-  const p2pk_script = script.fromASM(p2pk_script_asm);
+  //const p2pkScriptAsm = `${toXOnly(keypair.publicKey).toString('hex')} OP_CHECKSIG OP_FALSE OP_IF OP_3 6f7264 OP_1 1 0x1e 6170706c69636174696f6e2f6a736f6e3b636861727365743d7574662d38 OP_1 5 0x4b   7b73656e6465723a20223465646663663964666536633062356338336431616233663738643162333961343665626163363739386530386531393736316635656438396563383363313022 OP_ENDIF`;
+  const p2pkScript = script.fromASM(p2pkScriptAsm);
 
   const scriptTree: Taptree = [
     {
-      output: hash_lock_script,
+      output: hashLockScript,
     },
     {
-      output: p2pk_script,
+      output: p2pkScript,
     },
   ];
 
-  const hash_lock_redeem = {
-    output: hash_lock_script,
+  const hashLockRedeem = {
+    output: hashLockScript,
     redeemVersion: 192,
   };
 
   const hash_lock_p2tr = payments.p2tr({
-    internalPubkey: toXOnly(keypair_internal.publicKey),
+    internalPubkey: toXOnly(keypairInternal.publicKey),
     scriptTree,
-    redeem: hash_lock_redeem,
+    redeem: hashLockRedeem,
     network,
   });
 
   const tapLeafScript = {
-    leafVersion: hash_lock_redeem.redeemVersion,
-    script: hash_lock_redeem.output,
+    leafVersion: hashLockRedeem.redeemVersion,
+    script: hashLockRedeem.output,
     controlBlock: hash_lock_p2tr.witness![hash_lock_p2tr.witness!.length - 1],
   };
 
@@ -180,16 +175,16 @@ export async function recover_lock_amount(
 
   console.log("### hash_lock_p2tr.output", hash_lock_p2tr.output, amount);
 
-  psbt.setLocktime(lock_time);
+  psbt.setLocktime(lockTime);
   psbt.addInput({
-    hash: utxo_txid,
-    index: utxo_index,
+    hash: utxoTxid,
+    index: utxoIndex,
     witnessUtxo: { script: hash_lock_p2tr.output!, value: amount },
     tapLeafScript: [tapLeafScript],
     sequence: 0xfffffffe,
   });
   psbt.addOutput({
-    address: recive_address,
+    address: reciveAddress,
     value: amount - 300,
   });
 
