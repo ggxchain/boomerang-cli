@@ -72,15 +72,14 @@ async function main() {
       const keyPairInteranl = ECPair.fromPrivateKey(privateKeyBufferInternal, {
         network: network,
       });
-
-      console.log("#### keyPair", keyPair.publicKey);
-
+      
       const { address } = payments.p2pkh({
         pubkey: keyPair.publicKey,
         network: networks.regtest,
       });
       console.log("### user address ", address);
 
+      const gas = 300;
       await createBoomerangAmount(
         keyPair,
         options.utxoTxid,
@@ -89,6 +88,7 @@ async function main() {
         options.lockTime,
         GGX_PUBLIC_KEY,
         keyPairInteranl,
+        gas,
       );
     } catch (error) {
       console.error("Error occurred while create boomerang!", error);
@@ -112,14 +112,13 @@ async function main() {
         network: network,
       });
 
-      console.log("#### keyPair", keyPair.publicKey);
-
       const { address } = payments.p2pkh({
         pubkey: keyPair.publicKey,
         network: networks.regtest,
       });
       console.log("### user address ", address);
 
+      const gas = 300;
       await recoverLockAmount(
         keyPair,
         options.utxoTxid,
@@ -129,6 +128,7 @@ async function main() {
         GGX_PUBLIC_KEY,
         address!,
         keyPairInteranl,
+        gas,
       );
     } catch (error) {
       console.error("Error occurred while recover boomerang!", error);

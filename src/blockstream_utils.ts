@@ -80,14 +80,36 @@ export async function getRawTransaction(txid: string) {
   }
 }
 
-export async function faucet(address: string, amout: number) {
+export async function getTransactionObject(txid: string) {
+  const body = {
+    jsonrpc: "1.0",
+    method: "getrawtransaction",
+    id: "getrawtx",
+    params: [txid, 1],
+  };
+
+  try {
+    const response = await axios.post(APIURL, body, {
+      auth: {
+        username: "rpcuser",
+        password: APIPASS,
+      },
+    });
+
+    return response.data.result;
+  } catch (error: any) {
+    console.log("### getRawTransaction error", error);
+  }
+}
+
+export async function faucet(address: string, amount: number) {
   const body = {
     jsonrpc: "1.0",
     method: "sendtoaddress",
     id: "sendtoaddress",
     params: [
       address,
-      amout / 1e8,
+      amount / 1e8,
       "",
       "",
       false,
@@ -124,12 +146,12 @@ export async function faucet(address: string, amout: number) {
   }
 }
 
-export async function height() {
+export async function blockHeight(bestBlockHash: string) {
   const body = {
     jsonrpc: "1.0",
     method: "getblockheader",
     id: "getblockheader",
-    params: [true],
+    params: [bestBlockHash],
   };
 
   try {
@@ -142,19 +164,23 @@ export async function height() {
 
     if (response.data != null) {
       if (response.data.result == null) {
-        console.log("### height response error: ", response.data.error);
+        console.log("### blockHeight response error: ", response.data.error);
       }
     }
 
-    return response.data.height;
+    return response.data.result.height;
   } catch (error: any) {
-    console.log("### height error: ", error.code);
+    console.log("### blockHeight error: ", bestBlockHash, error.code);
     console.log(
-      "### height error error.response: ",
+      "### blockHeight error error.response: ",
       // error.response,
       error.response.data.error,
     );
   }
+}
+
+function timeout(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export async function mine(count: number) {
@@ -179,11 +205,49 @@ export async function mine(count: number) {
       }
     }
 
-    return response.data.height;
+    //await timeout(5000);
+
+    return response.data;
   } catch (error: any) {
     console.log("### mine error: ", error.code);
     console.log(
       "### mine error error.response: ",
+      // error.response,
+      error.response.data.error,
+    );
+  }
+}
+
+export async function bestBlockHash() {
+  const body = {
+    jsonrpc: "1.0",
+    method: "getbestblockhash",
+    id: "getbestblockhash",
+    params: [],
+  };
+
+  try {
+    const response = await axios.post(APIURL, body, {
+      auth: {
+        username: "rpcuser",
+        password: APIPASS,
+      },
+    });
+
+    if (response.data != null) {
+      if (response.data.result == null) {
+        console.log(
+          "### getbestblockhash response error: ",
+          response.data.error,
+        );
+      }
+    }
+
+    return response.data.result;
+  } catch (error: any) {
+    console.log("### getbestblockhash error: ", error.code);
+    console.log(
+      "### getbestblockhash error error.response: ",
       // error.response,
       error.response.data.error,
     );

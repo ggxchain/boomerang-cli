@@ -17,30 +17,6 @@ initEccLib(tinysecp as any);
 const ECPair: ECPairAPI = ECPairFactory(tinysecp);
 const network = networks.regtest;
 
-function tweakSigner(signer: Signer, opts: any = {}): Signer {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  let privateKey: Uint8Array | undefined = signer.privateKey!;
-  if (!privateKey) {
-    throw new Error("Private key is required for tweaking signer!");
-  }
-  if (signer.publicKey[0] === 3) {
-    privateKey = tinysecp.privateNegate(privateKey);
-  }
-
-  const tweakedPrivateKey = tinysecp.privateAdd(
-    privateKey,
-    tapTweakHash(toXOnly(signer.publicKey), opts.tweakHash),
-  );
-  if (!tweakedPrivateKey) {
-    throw new Error("Invalid tweaked private key!");
-  }
-
-  return ECPair.fromPrivateKey(Buffer.from(tweakedPrivateKey), {
-    network: opts.network,
-  });
-}
-
 function tapTweakHash(pubKey: Buffer, h: Buffer | undefined): Buffer {
   return crypto.taggedHash(
     "TapTweak",
@@ -53,7 +29,6 @@ export function toXOnly(pubkey: Buffer): Buffer {
 }
 
 export function cltvCheckSigOutput(aQ: Signer, lockTime: number) {
-  //console.log("### locktime pubkey: ", aQ.publicKey.toString("hex"), toXOnly(aQ.publicKey).toString("hex"));
   return script.fromASM(
     `
             ${script.number.encode(lockTime).toString("hex")}
@@ -75,6 +50,7 @@ export async function createBoomerangAmount(
   lockTime: number,
   ggxPublicKey: string,
   keypairInternal: Signer,
+  gas: number,
 ) {
   // Create a tap tree with two spend paths
   // One path should allow spending using secret
@@ -102,10 +78,10 @@ export async function createBoomerangAmount(
     network,
   });
   const scriptAddr = scriptP2tr.address ?? "";
-  console.log("scriptAddr", scriptAddr);
 
   const rawTx = await getRawTransaction(utxoTxid);
   const psbt = new Psbt({ network });
+
   psbt.addInput({
     hash: utxoTxid,
     index: utxoIndex,
@@ -113,8 +89,8 @@ export async function createBoomerangAmount(
   });
 
   psbt.addOutput({
-    address: scriptAddr, // faucet address
-    value: amount - 300,
+    address: scriptAddr,
+    value: amount - gas,
   });
 
   psbt.signInput(0, keypairUser);
@@ -136,6 +112,7 @@ export async function recoverLockAmount(
   ggxPublicKey: string,
   reciveAddress: string,
   keypairInternal: Signer,
+  gas: number,
 ) {
   const hashLockScript = cltvCheckSigOutput(keypair, lockTime);
   const p2pkScriptAsm = `${ggxPublicKey} OP_CHECKSIG`;
@@ -173,9 +150,8 @@ export async function recoverLockAmount(
 
   const psbt = new Psbt({ network });
 
-  console.log("### hash_lock_p2tr.output", hash_lock_p2tr.output, amount);
-
   psbt.setLocktime(lockTime);
+
   psbt.addInput({
     hash: utxoTxid,
     index: utxoIndex,
@@ -185,7 +161,7 @@ export async function recoverLockAmount(
   });
   psbt.addOutput({
     address: reciveAddress,
-    value: amount - 300,
+    value: amount - gas,
   });
 
   // We need to create a signer tweaked by script tree's merkle root
@@ -193,7 +169,6 @@ export async function recoverLockAmount(
   psbt.finalizeInput(0);
 
   const tx = psbt.extractTransaction();
-  //console.log("### tx is ", tx.toHex());
   const txid = (await broadcast(tx.toHex()))?.result;
   console.log(`Success! Txid is ${txid}, index is 0`);
   return txid;
