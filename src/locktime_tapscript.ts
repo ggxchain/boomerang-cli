@@ -7,6 +7,7 @@ import {
   crypto,
   Psbt,
   Payment,
+  opcodes,
 } from "bitcoinjs-lib";
 import { broadcast, getRawTransaction } from "./blockstream_utils";
 import { ECPairFactory, ECPairAPI, TinySecp256k1Interface } from "ecpair";
@@ -28,7 +29,7 @@ export function toXOnly(pubkey: Buffer): Buffer {
   return pubkey.subarray(1, 33);
 }
 
-export function cltvCheckSigOutput(aQ: Signer, lockTime: number) {
+export function cltvScript(aQ: Signer, lockTime: number) {
   return script.fromASM(
     `
             ${script.number.encode(lockTime).toString("hex")}
@@ -40,6 +41,33 @@ export function cltvCheckSigOutput(aQ: Signer, lockTime: number) {
       .trim()
       .replace(/\s+/g, " "),
   );
+}
+
+export function ggxOrdinalScriptByCode(
+  strPublicKey: string,
+  sender: string,
+  receiver: string,
+) {
+  const inscription = `{sender: ${sender},  receiver: ${receiver} }`;
+
+  // make the script output
+  var s = script.compile([
+    opcodes.OP_FALSE,
+    opcodes.OP_IF,
+    opcodes.OP_PUSH,
+    Buffer.from("ord", "utf8"), // doge labs uses this to identify the inscription
+    opcodes.OP_PUSH,
+    Buffer.from("1", "utf8"),
+    opcodes.OP_PUSH,
+    Buffer.from("application/json;charset=utf-8", "utf8"),
+    opcodes.OP_PUSH,
+    Buffer.from("0", "utf8"),
+    opcodes.OP_PUSH,
+    Buffer.from(inscription, "utf8"), // our actual text inscription
+    opcodes.OP_ENDIF,
+  ]);
+
+  return s;
 }
 
 export async function createBoomerangAmount(
@@ -56,12 +84,12 @@ export async function createBoomerangAmount(
   // One path should allow spending using secret
   // The other path should pay to another pubkey
 
-  const hashLockScript = cltvCheckSigOutput(keypairUser, lockTime);
-
-  const p2pkScriptAsm = `${ggxPublicKey} OP_CHECKSIG`;
-  //todo use ggx public key
-  //const p2pkScript_asm = `${toXOnly(keypair.publicKey).toString('hex')} OP_CHECKSIG OP_FALSE OP_IF OP_3 6f7264 OP_1 1 0x1e 6170706c69636174696f6e2f6a736f6e3b636861727365743d7574662d38 OP_1 5 0x4b   7b73656e6465723a20223465646663663964666536633062356338336431616233663738643162333961343665626163363739386530386531393736316635656438396563383363313022 OP_ENDIF`;
-  const p2pkScript = script.fromASM(p2pkScriptAsm);
+  const hashLockScript = cltvScript(keypairUser, lockTime);
+  const p2pkScript = ggxOrdinalScriptByCode(
+    ggxPublicKey,
+    toXOnly(keypairUser.publicKey).toString("hex"),
+    toXOnly(keypairUser.publicKey).toString("hex"),
+  );
 
   const scriptTree: Taptree = [
     {
@@ -114,12 +142,12 @@ export async function recoverLockAmount(
   keypairInternal: Signer,
   gas: number,
 ) {
-  const hashLockScript = cltvCheckSigOutput(keypair, lockTime);
-  const p2pkScriptAsm = `${ggxPublicKey} OP_CHECKSIG`;
-
-  //todo use ggx public key
-  //const p2pkScriptAsm = `${toXOnly(keypair.publicKey).toString('hex')} OP_CHECKSIG OP_FALSE OP_IF OP_3 6f7264 OP_1 1 0x1e 6170706c69636174696f6e2f6a736f6e3b636861727365743d7574662d38 OP_1 5 0x4b   7b73656e6465723a20223465646663663964666536633062356338336431616233663738643162333961343665626163363739386530386531393736316635656438396563383363313022 OP_ENDIF`;
-  const p2pkScript = script.fromASM(p2pkScriptAsm);
+  const hashLockScript = cltvScript(keypair, lockTime);
+  const p2pkScript = ggxOrdinalScriptByCode(
+    ggxPublicKey,
+    toXOnly(keypair.publicKey).toString("hex"),
+    toXOnly(keypair.publicKey).toString("hex"),
+  );
 
   const scriptTree: Taptree = [
     {

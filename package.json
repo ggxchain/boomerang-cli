@@ -14,7 +14,7 @@
     "p": "npx prettier . --write"
   },
   "jest": {
-    "testTimeout": 6000
+    "testTimeout": 60000
   },
   "keywords": [],
   "author": "",

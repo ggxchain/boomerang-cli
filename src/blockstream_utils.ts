@@ -76,7 +76,11 @@ export async function getRawTransaction(txid: string) {
 
     return response.data.result;
   } catch (error: any) {
-    console.log("### getRawTransaction error", error);
+    console.log(
+      "### getRawTransaction error",
+      error,
+      error.response.data.error,
+    );
   }
 }
 
@@ -180,7 +184,7 @@ export async function blockHeight(bestBlockHash: string) {
 }
 
 function timeout(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export async function mine(count: number) {
@@ -188,7 +192,7 @@ export async function mine(count: number) {
     jsonrpc: "1.0",
     method: "generatetoaddress",
     id: "generatetoaddress",
-    params: [count, "bcrt1qg4xrdyf0dzc26y39zyzkajleww5z0hgzvzl9fj"],
+    params: [count, "bcrt1q2zj2tdv8sjl4vqdhjcvyk5tysdjntgj74k6g5c"],
   };
 
   try {

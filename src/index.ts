@@ -72,7 +72,7 @@ async function main() {
       const keyPairInteranl = ECPair.fromPrivateKey(privateKeyBufferInternal, {
         network: network,
       });
-      
+
       const { address } = payments.p2pkh({
         pubkey: keyPair.publicKey,
         network: networks.regtest,
