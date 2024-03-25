@@ -52,6 +52,8 @@ export function ggxOrdinalScriptByCode(
 
   // make the script output
   var s = script.compile([
+    Buffer.from(strPublicKey),
+    opcodes.OP_CHECKSIG,
     opcodes.OP_FALSE,
     opcodes.OP_IF,
     opcodes.OP_PUSH,
