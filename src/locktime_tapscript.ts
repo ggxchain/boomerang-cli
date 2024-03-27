@@ -13,6 +13,9 @@ import { broadcast, getRawTransaction } from "./blockstream_utils";
 import { ECPairFactory, ECPairAPI, TinySecp256k1Interface } from "ecpair";
 import { Taptree } from "bitcoinjs-lib/src/types";
 
+import { ApiPromise, WsProvider } from "@polkadot/api";
+import "@polkadot/api-augment";
+
 const tinysecp: TinySecp256k1Interface = require("tiny-secp256k1");
 initEccLib(tinysecp as any);
 const ECPair: ECPairAPI = ECPairFactory(tinysecp);
@@ -202,4 +205,20 @@ export async function recoverLockAmount(
   const txid = (await broadcast(tx.toHex()))?.result;
   console.log(`Success! Txid is ${txid}, index is 0`);
   return txid;
+}
+
+export async function listBoomerangsByAddress(address_h160: string) {
+  // Construct
+  const wsProvider = new WsProvider("ws://127.0.0.1:9944");
+  const api = await ApiPromise.create({ provider: wsProvider });
+
+  const utxos = await api.query.btcRelay.boomerageUTXOS(
+    { p2pkh: address_h160 },
+    0,
+  );
+
+  console.log("your boomrange utxo is: ", utxos.toHuman());
+
+  // for (let element of utxos.toHuman()!) {
+  // }
 }

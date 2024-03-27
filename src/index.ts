@@ -5,7 +5,11 @@ import { initEccLib, networks, payments } from "bitcoinjs-lib";
 
 import { ECPairFactory, ECPairAPI } from "ecpair";
 
-import { createBoomerangAmount, recoverLockAmount } from "./locktime_tapscript";
+import {
+  createBoomerangAmount,
+  recoverLockAmount,
+  listBoomerangsByAddress,
+} from "./locktime_tapscript";
 
 import tinysecp = require("tiny-secp256k1");
 initEccLib(tinysecp as any);
@@ -54,6 +58,7 @@ async function main() {
     .option("-pi, --private-key-internal <key-internal>")
     .option("-pggx, --public-key-ggx <public-key-ggx>")
     .option("-lo, --lock-time <lock>", "integer argument", myParseInt)
+    .option("-addr, --addr <addr>", "address")
     .parse(process.argv);
 
   const options = program.opts();
@@ -138,6 +143,8 @@ async function main() {
   async function listBoomerangs() {
     try {
       console.log("## listBoomerangs");
+
+      await listBoomerangsByAddress(options.addr);
     } catch (error) {
       console.error("Error occurred while list boomerangs!", error);
     }
