@@ -1,0 +1,56 @@
+{
+  "name": "boomerang-cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "h": "npx tsc && node dist/index.js -h",
+    "c": "npx tsc && node dist/index.js -c 1 --amount  100000000 --utxo-txid=eea086015d32885c64b6870bdbbe865b1a30f037dc9d437b0bb34e5b844f34a7 --utxo-index 0 --private-key 2bd806c97f0e00af1a1fc3328fa763a9269723c8db8fac4f93af71db186d6e90   --private-key-internal 1229101a0fcf2104e8808dab35661134aa5903867d44deb73ce1c7e4eb925be8  --lock-time 3600",
+    "r": "npx tsc && node dist/index.js -r 1 --amount  99999700 --utxo-txid=1f95097181dc27964a4c9802641bd9363704cee4070a6c60f756438ecc7ec205 --utxo-index 0 --private-key 2bd806c97f0e00af1a1fc3328fa763a9269723c8db8fac4f93af71db186d6e90   --private-key-internal 1229101a0fcf2104e8808dab35661134aa5903867d44deb73ce1c7e4eb925be8  --lock-time 3600",
+    "l": "npx tsc && node dist/index.js -l 1 --addr 0x853477d077bd6b23ef8e00ffc3ef1f8ae6fdf784",
+    "build": "npx tsc",
+    "test": "jest --verbose",
+    "lint": "eslint src",
+    "p": "npx prettier . --write"
+  },
+  "jest": {
+    "testTimeout": 60000
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@polkadot/api": "^10.12.4",
+    "add": "^2.0.6",
+    "axios": "^1.6.7",
+    "bitcoin-core": "^4.2.0",
+    "bitcoinjs-lib": "^6.1.5",
+    "commander": "^12.0.0",
+    "ecpair": "^2.1.0",
+    "figlet": "^1.7.0",
+    "json-rpc-2.0": "^1.7.0",
+    "tiny-secp256k1": "^2.2.3",
+    "varuint-bitcoin": "^1.1.2",
+    "yarn": "^1.22.22"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.1",
+    "@babel/preset-env": "^7.24.1",
+    "@babel/preset-typescript": "^7.24.1",
+    "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.11.23",
+    "@typescript-eslint/eslint-plugin": "^7.2.0",
+    "@typescript-eslint/parser": "^7.2.0",
+    "babel-jest": "^29.7.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "jest": "^29.7.0",
+    "prettier": "3.2.5",
+    "regtest-client": "^0.2.1",
+    "ts-jest": "^29.1.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.2",
+    "typescript-eslint": "^7.2.0"
+  }
+}
